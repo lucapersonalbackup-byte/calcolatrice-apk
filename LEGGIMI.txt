@@ -1,0 +1,110 @@
+================================================================
+CALCOLATRICE PRO - Progetto APK Android
+Compilazione automatica via GitHub Actions
+================================================================
+
+Questo progetto compila un APK Android nativo (WebView) che
+contiene la calcolatrice. Funziona 100% offline - tutti i file
+HTML/JS e le librerie sono dentro l'APK.
+
+Stesso flusso che usi per FotoDrop:
+  push su GitHub -> GitHub Actions compila -> scarichi l'APK.
+
+
+================================================================
+COME GENERARE L'APK (riga di comando PowerShell)
+================================================================
+
+PASSO 1 - Estrai questo ZIP in una cartella, es:
+    C:\Users\assil\CalcPro_build\calcpro-android
+
+PASSO 2 - Apri PowerShell e vai nella cartella:
+    cd C:\Users\assil\CalcPro_build\calcpro-android
+
+PASSO 3 - Inizializza git e fai il primo commit:
+    git init -b main
+    git add .
+    git commit -m "Progetto APK calcolatrice"
+
+PASSO 4 - Crea il repository su GitHub e pusha:
+    gh repo create calcolatrice-apk --public --source=. --push --description "APK Calcolatrice Pro"
+
+PASSO 5 - La build parte DA SOLA appena fatto il push.
+    Controlla lo stato con:
+    gh run watch
+
+    Oppure apri nel browser:
+    https://github.com/lucapersonalbackup-byte/calcolatrice-apk/actions
+
+PASSO 6 - Quando la build è verde (✓), scarica l'APK:
+    gh run download --name CalcolatricePro-debug-apk
+
+    L'APK "app-debug.apk" verrà scaricato nella cartella corrente.
+
+PASSO 7 - Trasferisci app-debug.apk sul telefono e installalo
+    (come fai con FotoDrop).
+
+
+================================================================
+AGGIORNARE L'APP IN FUTURO
+================================================================
+
+Se ti darò nuovi file index.html / app.js:
+1. Sostituiscili in app/src/main/assets/www/
+2. Dalla cartella del progetto:
+       git add .
+       git commit -m "Aggiornamento app"
+       git push
+3. La build riparte da sola. Scarica il nuovo APK come al passo 6.
+
+
+================================================================
+DETTAGLI TECNICI
+================================================================
+
+Nome pacchetto:    com.grigolon.calcpro
+Linguaggio:        Java (WebView + AndroidX/AppCompat)
+Versione minima:   Android 8.0 (API 26)
+SDK compilazione:  Android API 34, AGP 8.5.2, Gradle 8.10.2
+Permessi:          INTERNET (non usato realmente, l'app è offline)
+                   WRITE_EXTERNAL_STORAGE (solo Android <= 9, per
+                   salvare PDF/PNG nella cartella Download)
+
+Architettura:
+- L'app è una WebView a schermo intero che carica
+  file:///android_asset/www/index.html
+- Tutti i file (HTML, JS, librerie html2canvas e jsPDF, icone)
+  sono dentro app/src/main/assets/www/ - nessuna connessione
+  internet necessaria.
+- I dati (calcoli, note, impostazioni) sono salvati nel
+  localStorage della WebView (DomStorage abilitato).
+- Esportazione PDF/PNG: un bridge JavaScript->Java
+  (AndroidSaver.saveBase64) salva i file nella cartella Download
+  del telefono via MediaStore (Android 10+) o filesystem diretto
+  (Android <= 9).
+- Il tasto Indietro del telefono naviga la cronologia WebView.
+
+File principali:
+- app/src/main/java/.../MainActivity.java  -> la WebView + bridge
+- app/src/main/assets/www/                 -> la web app completa
+- .github/workflows/build.yml              -> compilazione cloud
+
+
+================================================================
+PROBLEMI COMUNI
+================================================================
+
+"Build fallita per il wrapper gradle"
+  -> Verifica che i file gradlew, gradlew.bat e
+     gradle/wrapper/gradle-wrapper.jar siano stati committati.
+     A volte git ignora i .jar: forzali con
+        git add -f gradle/wrapper/gradle-wrapper.jar
+
+"L'APK non si installa"
+  -> Abilita "origini sconosciute" nelle impostazioni del
+     telefono (come per FotoDrop).
+
+"PDF/PNG non vengono salvati"
+  -> Su Android <= 9 serve concedere il permesso di archiviazione
+     alla prima richiesta. Su Android 10+ va automaticamente
+     nella cartella Download.
