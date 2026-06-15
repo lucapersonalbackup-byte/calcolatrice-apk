@@ -35,6 +35,14 @@
     color: #fff;
   }
   .logo .dot { color: #ffb547; }
+  .version-tag {
+    font-family: 'Courier New', monospace; font-size: 10px;
+    color: #ffb547; font-weight: 700;
+    margin-left: 8px; padding: 2px 6px;
+    background: rgba(255, 181, 71, 0.12);
+    border: 1px solid #ffb54740; border-radius: 5px;
+    vertical-align: middle;
+  }
   .date-chip {
     font-family: 'Courier New', monospace; font-size: 11px;
     color: #6b7280; padding: 3px 8px; border: 1px solid #2a2f3d;
@@ -78,10 +86,10 @@
 
   /* ===== DISPLAY ===== */
   .display {
-    margin: 0 16px 12px; padding: 14px 14px 10px;
+    margin: 0 12px 10px; padding: 12px 14px 8px;
     background: linear-gradient(to bottom, #131820, #0d1218);
     border: 1px solid #1a2533; border-radius: 16px;
-    min-height: 170px;
+    min-height: 140px; flex-shrink: 0;
     display: flex; flex-direction: column;
   }
   .display-meta {
@@ -152,12 +160,23 @@
   .result-line.red { color: #f87171; }
 
   /* ===== KEYPAD ===== */
-  .pad { flex: 1; display: flex; flex-direction: column; padding: 0 16px 16px; gap: 6px; overflow: hidden; }
+  .pad {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 0 12px 12px; gap: 6px; overflow: hidden;
+    min-height: 0;
+  }
+  /* Each grid block grows to share the available vertical space.
+     The main numeric grid grows more (flex-grow larger) so digits are big. */
   .pad-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 6px; flex: 1 1 auto; min-height: 0;
+  }
+  .pad-grid.secondary {
+    /* scientific/economic extra rows: grow less than the main grid */
+    flex: 0 1 auto;
   }
   .btn {
-    min-height: 48px; padding: 0; border: 1px solid;
+    min-height: 30px; padding: 0; border: 1px solid;
     border-radius: 12px; cursor: pointer;
     font-family: 'Courier New', monospace;
     font-size: 18px; font-weight: 700; letter-spacing: 0.5px;
@@ -169,7 +188,7 @@
   /* Digit and default */
   .btn.digit {
     background: #1d2030; color: #e6e7ea; border-color: #2a2f3d;
-    font-size: 22px;
+    font-size: 24px;
   }
   .btn.digit:active { background: #2a2f3d; }
 
@@ -198,18 +217,18 @@
 
   /* Memory */
   .btn.mem {
-    min-height: 38px; font-size: 13px;
+    min-height: 0; font-size: 13px;
     background: linear-gradient(to bottom, #1d2640, #15192c);
     color: #93c5fd; border-color: #2a3a5e;
   }
 
   /* Scientific */
   .btn.sci {
-    min-height: 34px; font-size: 12px;
+    min-height: 0; font-size: 12px;
     background: #1d2030; color: #c4b5fd; border-color: #2a2f3d;
   }
   .btn.sci-shift {
-    min-height: 34px; font-size: 12px;
+    min-height: 0; font-size: 12px;
     background: linear-gradient(to bottom, #3a3010, #2a200a);
     color: #facc15; border: 1.5px solid #a16207;
     font-weight: 800;
@@ -220,7 +239,7 @@
     font-weight: 900;
   }
   .btn.sci-mod {
-    min-height: 34px; font-size: 12px;
+    min-height: 0; font-size: 12px;
     background: linear-gradient(to bottom, #102818, #0a1d10);
     color: #6ee7b7; border: 1.5px solid #166534;
     font-weight: 800;
@@ -231,7 +250,7 @@
     font-weight: 900;
   }
   .btn.sci-stat {
-    min-height: 34px; font-size: 12px;
+    min-height: 0; font-size: 12px;
     background: linear-gradient(to bottom, #0e2530, #08181f);
     color: #67e8f9; border: 1.5px solid #0e7490;
     font-weight: 800;
@@ -244,25 +263,25 @@
 
   /* Statistics */
   .btn.stat-data {
-    min-height: 34px; font-size: 12px;
+    min-height: 0; font-size: 12px;
     background: linear-gradient(to bottom, #103a2c, #0a2a20);
     color: #6ee7b7; border: 1.5px solid #166534;
     font-weight: 800;
   }
   .btn.stat-del {
-    min-height: 34px; font-size: 12px;
+    min-height: 0; font-size: 12px;
     background: linear-gradient(to bottom, #3a1818, #2a1010);
     color: #fca5a5; border: 1.5px solid #6e2929;
     font-weight: 800;
   }
   .btn.stat-clr {
-    min-height: 34px; font-size: 11px;
+    min-height: 0; font-size: 11px;
     background: linear-gradient(to bottom, #4a1818, #2a0808);
     color: #f87171; border: 1.5px solid #b91c1c;
     font-weight: 900;
   }
   .btn.stat-read {
-    min-height: 34px; font-size: 14px;
+    min-height: 0; font-size: 14px;
     background: linear-gradient(to bottom, #1a2540, #10172a);
     color: #67e8f9; border: 1.5px solid #1e4a6e;
     font-weight: 700;
@@ -270,24 +289,24 @@
 
   /* Economic */
   .btn.eco {
-    min-height: 38px; font-size: 13px;
+    min-height: 0; font-size: 13px;
     background: linear-gradient(to bottom, #2a2618, #1d1a10);
     color: #fbbf24; border-color: #574123;
   }
   .btn.eco-add {
-    min-height: 38px; font-size: 14px;
+    min-height: 0; font-size: 14px;
     background: linear-gradient(to bottom, #103a2c, #0a2a20);
     color: #6ee7b7; border: 1.5px solid #1a5d44;
     font-weight: 800;
   }
   .btn.eco-sub {
-    min-height: 38px; font-size: 14px;
+    min-height: 0; font-size: 14px;
     background: linear-gradient(to bottom, #3a1818, #2a1010);
     color: #fca5a5; border: 1.5px solid #6e2929;
     font-weight: 800;
   }
   .btn.eco-set {
-    min-height: 38px; font-size: 13px;
+    min-height: 0; font-size: 13px;
     background: linear-gradient(to bottom, #2c1a45, #1f1330);
     color: #c4b5fd; border: 1.5px solid #4a3a78;
     font-weight: 700;
@@ -444,7 +463,7 @@
   <!-- HEADER -->
   <div class="header">
     <div>
-      <span class="logo">CALC<span class="dot">·</span>PRO</span>
+      <span class="logo">CALC<span class="dot">·</span>PRO</span><span class="version-tag" id="versionTag">v2.0</span>
       <span class="date-chip" id="dateChip"></span>
     </div>
     <button class="tape-btn" id="tapeBtn">
@@ -473,7 +492,7 @@
       <button class="badge violet hidden" id="ivaBadge">IVA22%</button>
       <span class="pulse"></span>
     </div>
-    <input type="text" class="expr-line" id="exprLine" inputmode="none" autocomplete="off" spellcheck="false">
+    <input type="text" class="expr-line" id="exprLine" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <div class="result-line" id="resultLine">0</div>
   </div>
 

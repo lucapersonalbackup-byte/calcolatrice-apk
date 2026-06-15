@@ -6,6 +6,11 @@
 'use strict';
 
 // ============================================================
+// VERSIONE - cambiare qui ad ogni rilascio
+// ============================================================
+const APP_VERSION = 'v2.0';
+
+// ============================================================
 // FORMATTING
 // ============================================================
 function fmtIt(n, fixedDecimals) {
@@ -342,7 +347,7 @@ function buildPad() {
   if (mode === 'scientific') {
     const layout = statActive ? STAT_LAYOUT : SCI_LAYOUT;
     const grid = document.createElement('div');
-    grid.className = 'pad-grid';
+    grid.className = 'pad-grid secondary';
     layout.forEach(([normal, shift, variant]) => {
       const btn = document.createElement('button');
       let v = variant;
@@ -357,7 +362,7 @@ function buildPad() {
     pad.appendChild(grid);
   } else if (mode === 'economic') {
     const grid = document.createElement('div');
-    grid.className = 'pad-grid';
+    grid.className = 'pad-grid secondary';
     ECO_EXTRA.forEach(([txt, variant]) => {
       const btn = document.createElement('button');
       btn.className = 'btn ' + variant;
@@ -425,7 +430,13 @@ function fmtExprDisplay(s) {
   return s.replace(/\./g, ',').replace(/\*/g, '\u00D7').replace(/\//g, '\u00F7').replace(/-/g, '\u2212');
 }
 function unfmtExpr(s) {
-  return s.replace(/,/g, '.').replace(/\u00D7/g, '*').replace(/\u00F7/g, '/').replace(/\u2212/g, '-').replace(/\s/g, '').replace(/=/g, '');
+  return s
+    .replace(/,/g, '.')
+    .replace(/[\u00D7xX]/g, '*')   // × or x or X -> *
+    .replace(/[\u00F7:]/g, '/')     // ÷ or : -> /
+    .replace(/\u2212/g, '-')        // unicode minus -> -
+    .replace(/\s/g, '')
+    .replace(/=/g, '');
 }
 
 function updateDisplay() {
@@ -481,7 +492,28 @@ exprLine.addEventListener('input', e => {
 exprLine.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     e.preventDefault();
-    onButton('=');
+    onButton('=');  }
+});
+
+// When the user taps the expression line to edit it, if we're showing a
+// "fresh" result (e.g. "5554+58+8 ="), strip the trailing " =" so the
+// expression becomes cleanly editable, and switch out of fresh-result mode.
+exprLine.addEventListener('focus', () => {
+  if (freshResult) {
+    freshResult = false;
+    // currentExpr currently holds the numeric result; restore the editable
+    // expression from the last tape entry if available.
+    if (state.tape.length) {
+      const lastExpr = state.tape[state.tape.length - 1].expr;
+      // Only restore if it looks like a plain editable expression
+      if (/^[-0-9+*/.,×÷−\s]+$/.test(lastExpr)) {
+        currentExpr = unfmtExpr(lastExpr);
+      }
+    }
+    const disp = currentExpr ? fmtExprDisplay(currentExpr) : '';
+    exprLine.value = disp;
+    resultLine.textContent = disp || '0';
+    resultLine.className = 'result-line';
   }
 });
 
@@ -1024,8 +1056,6 @@ $('btnPdf').addEventListener('click', async () => {
       }
     }
     pdf.save('Calcolatrice_' + stampFile() + '.pdf');
-    // On Android WebView, also push via bridge (jsPDF .save uses blob download
-    // which may not trigger in WebView)
     if (window.AndroidSaver && window.AndroidSaver.saveBase64) {
       const pdfData = pdf.output('datauristring');
       window.AndroidSaver.saveBase64(pdfData, 'Calcolatrice_' + stampFile() + '.pdf', 'application/pdf');
@@ -1081,6 +1111,9 @@ window.addEventListener('keydown', e => {
 // INIT
 // ============================================================
 function init() {
+  // Version tag
+  const vt = $('versionTag');
+  if (vt) vt.textContent = APP_VERSION;
   // Update date chip
   const d = new Date();
   $('dateChip').textContent = String(d.getDate()).padStart(2, '0') + '/' +
